@@ -1,6 +1,7 @@
 //Awaaz Dahal
 //My name is Ryland Smith and this is my edit for assignment 14
 //Ashton Bloom has added his name to this for Assignment 14
+// Rachel Solak -- Assignment #14 comment :)
 
 //Single LED
 const int BUTTON_PIN = 11;  
