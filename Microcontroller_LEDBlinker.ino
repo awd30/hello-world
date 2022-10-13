@@ -1,4 +1,5 @@
 //Awaaz Dahal
+//My name is Ryland Smith and this is my edit for assignment 14
 //Single LED
 const int BUTTON_PIN = 11;  
 const int LED_PIN =  12;
