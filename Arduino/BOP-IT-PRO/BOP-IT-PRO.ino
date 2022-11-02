@@ -3,6 +3,7 @@
 #include <Vocab_US_Large.h>
 #include <Vocab_US_Acorn.h>
 #include <Vocab_Special.h>
+#include <Vocab_US_TI99.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <SD.h>
@@ -122,6 +123,13 @@ void start()
   lcd.print("Press & hold any");
   lcd.setCursor(0, 1);
   lcd.print("button to start");
+  voz.say(spt_PRESS);
+  voz.say(spt_AND);
+  voz.say(sp4_HOLD);
+  voz.say(spt_ANY);
+  voz.say(sp2_BUTTON);
+  voz.say(sp4_TO);
+  voz.say(sp4_START);
   delay(50);
 }
 //Button Function
@@ -215,6 +223,7 @@ void gameOver()
   sprintf(scoreString,"%d",finalScore);
   lcdDisplay();
   lcd.print("GAME OVER!");
+  voz.say(spt_NICE_TRY);
   delay(100);
   lcdDisplay();
   lcd.print("SCORE: ");
