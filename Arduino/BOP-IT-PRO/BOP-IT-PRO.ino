@@ -23,17 +23,17 @@ int yellowState = 0;
 int greenState = 0;
 
 //Speaker
+TMRpcm tmrpcm;
+tmrpcm.speakerPin = 12;
+// SD card
+#define SD_ChipSelectPin 11
 // Text-to-speech
 Talkie voz;
-// SD card
-TMRpcm tmrpcm;
-#define SD_ChipSelectPin 4
 
 //Touch Sensor
-#define TS1 2
-#define TS2 3
-#define TS3 4
-#define TS4 5
+#define TSR 6
+#define TSL 7
+#define TSO 9
 
 //Timer
 #define hardMode 300
@@ -71,9 +71,9 @@ void loop()
 //Welcome message
 void welcome()
 {
-  lcd.setCursor(0, 0);         // move cursor to   (0, 0)
+  lcd.setCursor(0, 0);         // move cursor to (0, 0)
   lcd.print("Welcome to");     // print message at (0, 0)
-  lcd.setCursor(5, 1);         // move cursor to   (5, 1)
+  lcd.setCursor(5, 1);         // move cursor to (5, 1)
   lcd.print("BOP-IT PRO!");    // print message at (5, 1)
 }
 
