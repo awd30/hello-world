@@ -304,7 +304,7 @@ void keepPlayingEasy()
         if (blueState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
         }
         else if(redState == HIGH || greenState == HIGH || yellowState == HIGH)
         {
