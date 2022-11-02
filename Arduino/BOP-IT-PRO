@@ -1,12 +1,13 @@
-
 //LCD config
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 //#include <pitches.h>
-#include <SimpleSDAudio.h>
 #include <Talkie.h>
 #include "Vocab_US_Large.h"
 #include "Vocab_Special.h"
+#include <SD.h>
+#include <TMRpcm.h>
+#include <SPI.h>
 LiquidCrystal_I2C lcd(0x27,16,2); 
 
 //Buttons define
@@ -31,6 +32,8 @@ const uint8_t spYOU[] PROGMEM ={0xA5,0xDA,0x0D,0x98,0x23,0x6F,0xF4,0x6A,0x55,0x3
 const uint8_t spSELECT[] PROGMEM = {0x0C,0x78,0xC6,0x95,0x01,0x3F,0xA5,0x28,0xE0,0xB7,0x52,0x0B,0x04,0xE0,0xB7,0x54,0x07,0xFC,0x52,0x66,0x80,0x9F,0xCB,0x46,0xB7,0x44,0xAA,0xA9,0xE4,0x59,0x5D,0x53,0x15,0x6C,0xBA,0x65,0xF5,0x85,0x55,0xB8,0xF3,0xE6,0x35,0x2C,0xA8,0x6B,0xAC,0xC9,0xD6,0xB0,0x90,0xAE,0xB1,0xA5,0x5D,0x5D,0xE5,0x9B,0x1A,0xF6,0x7A,0xB5,0x55,0x8E,0x5B,0xF8,0xE6,0xD5,0x36,0x37,0x9C,0x9A,0xAB,0x46,0xD3,0x63,0x62,0x71,0x4C,0x44,0xE0,0x14,0xA5,0x2A,0x54,0x03,0x00,0x40,0x01,0x43,0xBA,0x09,0x60,0x73,0x35,0x04,0x4E,0x51,0xAA,0x42,0x35,0xFE,0x1F};
 const uint8_t spLEVEL[] PROGMEM = {0x69,0xAB,0xC4,0xB3,0xD8,0x92,0x86,0x2D,0x83,0xEE,0x60,0xCD,0x12,0xD6,0x0C,0x66,0x45,0x2C,0x73,0x58,0x0B,0xA8,0x53,0xD6,0xAC,0x6D,0xE9,0xC0,0x57,0xC5,0xB2,0xAE,0xA1,0xB0,0x49,0x0D,0x7B,0xBD,0x86,0xA2,0x47,0x35,0xE3,0xF5,0xEA,0xB2,0x4B,0x4B,0xCB,0xC7,0xA3,0xCD,0xDE,0x23,0x59,0x1A,0x9A,0x31,0x8B,0xB0,0x54,0x76,0xE3,0xC6,0x26,0x5C,0x2C,0xCC,0x76,0x6B,0x92,0xBC,0x34,0x95,0xC6,0xA3,0xCE,0x74,0xDB,0x85,0x3B,0x8F,0xBA,0x90,0x9C,0x51,0xCC,0xD6,0xEA,0x4C,0x63,0x56,0x30,0x6D,0xA9,0x23,0xCF,0x59,0xD0,0x34,0xB5,0xF9,0x7F};
 // SD card
+TMRpcm tmrpcm;
+#define SD_ChipSelectPin 4
 
 //Touch Sensor
 int TS1=2;
@@ -46,7 +49,7 @@ unsigned long timeElapsed;
 long action;
 
 // variable to control game loop
-int playing = 0;
+int playing1 = 0;
 int actionCompleted = 0;
 int score = 0;
 int finalScore;
@@ -58,8 +61,9 @@ void setup()
   pinMode(btnRed, INPUT);
   pinMode(btnYellow, INPUT);
   pinMode(btnGreen, INPUT);
-  SdPlay.setSDCSPin(4); // sd card cs pin
+  
   Serial.begin(9600);
+  sd_check();  
   lcd.begin(16, 2);
   lcd.backlight();
   welcome();
@@ -83,6 +87,46 @@ void welcome()
   //voz.say(spTO)
 
 }
+
+// SD card sound functions
+void sd_check()
+{
+  // check for SD card present
+  if (!SD.begin(SD_ChipSelectPin)) {
+    Serial.println("SD card failed");
+    return;
+  }
+}
+
+void play_sound(int s) {
+  // select correct file
+  char* music = "";
+  switch (s) {
+    case 0:
+      music = "game_over";
+      break;
+    case 1:
+      music = "bell_correct-answer";
+      break;
+    case 2:
+      music = "buzzer_wrong-answer";
+      break;
+    default:
+      music = "";
+  }
+
+  // play music, output in terminal if it is working
+  if (Serial.available()) { 
+    // send p over serial to start playback   
+    if (Serial.read() == 'p') {
+      tmrpcm.play(music);
+    }
+  }
+
+  // end function
+  return;
+}
+
 //Start Message
 void start()
 {
@@ -189,9 +233,9 @@ void gameOver()
 }
 void keepPlayingEasy()
 {
-  int playing = 1;
-  //while loop to keep running game until user has failed and "playing" is set to zero
-  while (playing != 0) 
+  playing1 = 1;
+  //while loop to keep running game until user has failed and "playing1" is set to zero
+  while (playing1 != 0) 
   {   
     //pick an action to assign the user via a random number generator – upper bound is exclusive
     action = random(1, 4);
@@ -221,7 +265,7 @@ void keepPlayingEasy()
         else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing = 0;
+          playing1 = 0;
           score = 0;
         }
         //recalculate timeElapsed
@@ -236,7 +280,7 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing = 0;
+        playing1 = 0;
         score = 0;
       }
 
@@ -265,7 +309,7 @@ void keepPlayingEasy()
         else if(redState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing = 0;
+          playing1 = 0;
           score = 0;
         }
         //recalculate timeElapsed
@@ -280,7 +324,7 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing = 0;
+        playing1 = 0;
         score = 0;
       }
     }
@@ -309,7 +353,7 @@ void keepPlayingEasy()
         else if(redState == HIGH || greenState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing = 0;
+          playing1 = 0;
           score = 0;
          
         }
@@ -325,7 +369,7 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing = 0;
+        playing1 = 0;
         score = 0;
        
       }
@@ -355,7 +399,7 @@ void keepPlayingEasy()
         else if(redState == HIGH || greenState == HIGH || blueState == HIGH)
         {
           gameOver();
-          playing = 0;
+          playing1 = 0;
           score = 0;
           
         }
@@ -371,7 +415,7 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing = 0;
+        playing1 = 0;
         score = 0;
        
       }
@@ -381,9 +425,9 @@ void keepPlayingEasy()
 /*
 void keepPlayingHard()
 {
-  int playing = 1;
-  //while loop to keep running game until user has failed and "playing" is set to zero
-  while (playing != 0) 
+  playing1 = 1;
+  //while loop to keep running game until user has failed and "playing1" is set to zero
+  while (playing1 != 0) 
   {   
     //pick an action to assign the user via a random number generator – upper bound is exclusive
     action = random(1, 4);
@@ -411,7 +455,7 @@ void keepPlayingHard()
         else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing = 0;
+          playing1 = 0;
           score = 0;
           loop();
         }
@@ -427,7 +471,7 @@ void keepPlayingHard()
       else if(timeOfPrompt == 300 && actionCompleted == 0)
       {
         gameOver();
-        playing = 0;
+        playing1 = 0;
         score = 0;
         loop();
       }
