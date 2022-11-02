@@ -1,6 +1,7 @@
 #include <Talkie.h>
 #include <TalkieUtils.h>
 #include <Vocab_US_Large.h>
+#include <Vocab_US_Acorn.h>
 #include <Vocab_Special.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
@@ -34,10 +35,9 @@ TMRpcm tmrpcm;
 #define TS4 5
 
 //Timer
-unsigned long hardMode = 300;
-unsigned long easyMode = 700;
-unsigned long timeOfPrompt;
-unsigned long timeElapsed;
+#define hardMode 300
+#define easyMode 700
+unsigned long timeOfPrompt, timeElapsed;
 long action;
 
 // variable to control game loop
@@ -71,13 +71,9 @@ void loop()
 void welcome()
 {
   lcd.setCursor(0, 0);         // move cursor to   (0, 0)
-  lcd.print("Welcome to");        // print message at (0, 0)
+  lcd.print("Welcome to");     // print message at (0, 0)
   lcd.setCursor(5, 1);         // move cursor to   (5, 1)
-  lcd.print("BOP-IT PRO!"); // print message at (5, 1)
-
-  //voz.say(spWELCOME)
-  //voz.say(spTO)
-
+  lcd.print("BOP-IT PRO!");    // print message at (5, 1)
 }
 
 // SD card sound functions
@@ -184,8 +180,9 @@ void hardGameStart()
     lcd.setCursor(0, 1);
     lcd.print("   HARD LEVEL   ");
     voz.say(sp4_YOU);
-    voz.say(sp4_SELECT);
+    voz.say(spa_INPUT);
     voz.say(sp4_LEVEL);
+    voz.say(sp3_RED);
     delay(100);
     //keepPlayingHard();
 }
@@ -196,8 +193,9 @@ void easyGameStart()
     lcd.setCursor(0, 1);
     lcd.print("   EASY LEVEL   ");
     voz.say(sp4_YOU);
-    voz.say(sp4_SELECT);
+    voz.say(spa_INPUT);
     voz.say(sp4_LEVEL);
+    voz.say(sp3_GREEN);
     delay(100);
     keepPlayingEasy();
 }
