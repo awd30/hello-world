@@ -29,10 +29,10 @@ void Game::initSeq() {
 
 // Function to set display values
 void Game::initDisplay() {
-    this->setSeq(0, "Begin!");
-    this->setSeq(1, "Pull it!");
-    this->setSeq(2, "Push the left button!");
-    this->setSeq(3, "Push the right button!");
+    lcd.setCursor(0, 0);         // move cursor to   (0, 0)
+    lcd.print("Welcome to");     // print message at (0, 0)
+    lcd.setCursor(5, 1);         // move cursor to   (5, 1)
+    lcd.print("BOP-IT PRO!");    // print message at (5, 1)
 }
 
 void Game::startGame() {
