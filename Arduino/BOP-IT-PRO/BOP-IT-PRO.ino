@@ -132,13 +132,20 @@ void start()
   voz.say(sp4_START);
   delay(50);
 }
-//Button Function
-void pressAnyButton()
+
+// Update button state global variables with current values
+void readBtnStates()
 {
   blueState = digitalRead(btnBlue);
   redState = digitalRead(btnRed);
   yellowState = digitalRead(btnYellow);
   greenState = digitalRead(btnGreen);
+}
+
+//Button Function
+void pressAnyButton()
+{
+  readBtnStates();
       //blue                    red                   yellow            green
   if(blueState == HIGH || redState == HIGH || yellowState == HIGH || greenState == HIGH)
   {
@@ -214,6 +221,9 @@ void lcdDisplay()
 }
 void gameOver()
 {
+  playing1 = 0;
+  score = 0;
+  
   play_sound(0);
   tone(6, 100, 100);
   delay(100);
@@ -252,10 +262,7 @@ void keepPlayingEasy()
       //Action 1 = Press Red Button  
       while (timeElapsed < easyMode && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
+        readBtnStates();
         //read switch for comparing to check if action was completed
         //if the switch state changed, then the user completed action
         if (redState == HIGH)
@@ -266,8 +273,6 @@ void keepPlayingEasy()
         else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing1 = 0;
-          score = 0;
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
@@ -282,8 +287,6 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing1 = 0;
-        score = 0;
       }
 
     }
@@ -292,27 +295,24 @@ void keepPlayingEasy()
     {
       lcdDisplay();
       lcd.print("PRESS GREEN");
+      voz.say(sp2_PRESS);
+      voz.say(sp3_GREEN);      
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
       //Action 1 = Press Red Button  
       while (timeElapsed < easyMode && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
+        readBtnStates();
         //read switch for comparing to check if action was completed
         //if the switch state changed, then the user completed action
         if (greenState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
         }
         else if(redState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing1 = 0;
-          score = 0;
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
@@ -327,8 +327,6 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing1 = 0;
-        score = 0;
       }
     }
 
@@ -337,28 +335,24 @@ void keepPlayingEasy()
     {
       lcdDisplay();
       lcd.print("PRESS BLUE");
+      voz.say(sp2_PRESS);
+      voz.say(spt_BLUE);
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
       //Action 3 = Press BLUE Button  
       while (timeElapsed < easyMode && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
+        readBtnStates();
         //read switch for comparing to check if action was completed
         //if the switch state changed, then the user completed action
         if (blueState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
         }
         else if(redState == HIGH || greenState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing1 = 0;
-          score = 0;
-         
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
@@ -373,9 +367,6 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing1 = 0;
-        score = 0;
-       
       }
     }
 
@@ -389,10 +380,7 @@ void keepPlayingEasy()
       //Action 3 = Press BLUE Button  
       while (timeElapsed < easyMode && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
+        readBtnStates();
         //read switch for comparing to check if action was completed
         //if the switch state changed, then the user completed action
         if (yellowState == HIGH)
@@ -403,9 +391,6 @@ void keepPlayingEasy()
         else if(redState == HIGH || greenState == HIGH || blueState == HIGH)
         {
           gameOver();
-          playing1 = 0;
-          score = 0;
-          
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
@@ -420,9 +405,6 @@ void keepPlayingEasy()
       else if(timeElapsed > 700 && actionCompleted == 0)
       {
         gameOver();
-        playing1 = 0;
-        score = 0;
-       
       }
     }
   }
@@ -447,10 +429,7 @@ void keepPlayingHard()
       while (timeElapsed < hardMode && actionCompleted == 0)
       {
         //read switch for comparing to check if action was completed
-        redState = digitalRead(btnRed);
-        int blueState = digitalRead(btnBlue);
-        int yellowState = digitalRead(btnYellow);
-        int greenState = digitalRead(btnGreen);
+        readBtnStates();
         //if the switch state changed, then the user completed action
         if (redState == HIGH)
         {
@@ -460,8 +439,6 @@ void keepPlayingHard()
         else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
           gameOver();
-          playing1 = 0;
-          score = 0;
           loop();
         }
         //recalculate timeElapsed
@@ -476,8 +453,6 @@ void keepPlayingHard()
       else if(timeOfPrompt == 300 && actionCompleted == 0)
       {
         gameOver();
-        playing1 = 0;
-        score = 0;
         loop();
       }
 
