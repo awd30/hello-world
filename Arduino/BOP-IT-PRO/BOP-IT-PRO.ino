@@ -9,7 +9,7 @@
 #include <SD.h>
 #include <TMRpcm.h>
 #include <SPI.h>
-LiquidCrystal_I2C lcd(0x27,16,2); 
+LiquidCrystal_I2C lcd(0x27,16,2);
 
 //Buttons define
 #define btnBlue 2
