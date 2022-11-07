@@ -3,7 +3,7 @@
 
 #include <playerinput.h>
 
-class Slide : PlayerInput {
+class Slide : public PlayerInput {
     public:
         Slide(int n = 0);
         

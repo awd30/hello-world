@@ -12,11 +12,12 @@ class Game {
         Game(bool);
 
         bool level;
-        int timer;
+        int timer, score, finalScore;
         unsigned long timeOfPrompt, timeElapsed;
         long action;
 
         void gameOver();
+        void correctTurn();
 };
 
 #endif

@@ -7,3 +7,12 @@ PlayerInput::PlayerInput(int n) {
     // setup as input
     pinMode(pin, INPUT);
 }
+
+int PlayerInput::getPin() {
+    return pin;
+}
+
+int PlayerInput::getState() {
+    state = digitalRead(pin);
+    return state;
+}

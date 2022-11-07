@@ -3,7 +3,7 @@
 
 #include <playerinput.h>
 
-class Button : PlayerInput {
+class Button : public PlayerInput {
     public:
         Button(int n = 0);
 };

@@ -36,12 +36,12 @@ void LCDScreen::difficultyLevel() {
     delay(200);
 }
 
-void LCDScreen::difficultyLevel(bool level) {
+void LCDScreen::levelSelection(bool level) {
     lcdDisplay();
     lcd.print("  YOU SELECTED  ");
     lcd.setCursor(0, 1);
     
-    if (level == false) {
+    if (level == true) {
         lcd.print("   HARD LEVEL   ");
     } else {
         lcd.print("   EASY LEVEL   ");
