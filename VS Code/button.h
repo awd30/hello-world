@@ -3,13 +3,12 @@
 
 class Button {
     public:
-        Button(int, String);
+        Button(int);
         ~Button();
         
-        int state, num;
-        String color;
+        int state, pin;
 
-        
+
 };
 
 #endif
