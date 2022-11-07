@@ -4,7 +4,6 @@
 class Speaker {
     public:
         Speaker();
-        ~Speaker();
 
         void gameOver();
         void correctAction();

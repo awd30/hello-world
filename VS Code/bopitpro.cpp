@@ -11,4 +11,7 @@ BopItPro::BopItPro() {
     right = TouchSensor(6);
     left = TouchSensor(7);
     other = TouchSensor(9);
+
+    // Create instance of slide petentiometer
+    slideP = Slide(11);
 }

@@ -9,7 +9,6 @@ class LCDScreen {
 
     public:
         LCDScreen();
-        ~LCDScreen();
 
         void welcome();
         void start();

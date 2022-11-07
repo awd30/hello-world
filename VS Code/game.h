@@ -10,7 +10,6 @@ using namespace std;
 class Game {
     public:
         Game(bool);
-        ~Game();
 
         bool level;
         int timer;
@@ -18,7 +17,6 @@ class Game {
         long action;
 
         void gameOver();
-        void ();
 };
 
 #endif

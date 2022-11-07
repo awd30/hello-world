@@ -3,14 +3,15 @@
 
 #include <button.h>
 #include <touchsensor.h>
+#include <slide.h>
 
 class BopItPro {
     public:
         BopItPro();
-        ~BopItPro();
 
         Button blue, red, yellow, green;
         TouchSensor right, left, other;
-}
+        Slide slideP;
+};
 
 #endif

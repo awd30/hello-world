@@ -3,10 +3,7 @@
 
 class TouchSensor {
     public:
-        TouchSensor(int);
-        ~TouchSensor();
-
-        int state, pin;
+        TouchSensor(int n = 0);
 };
 
 #endif

@@ -1,14 +1,11 @@
-#ifndef SPEAKER_H
-#define SPEAKER_H
+#ifndef BUTTON_H
+#define BUTTON_H
 
-class Button {
+#include <playerinput.h>
+
+class Button : PlayerInput {
     public:
-        Button(int);
-        ~Button();
-        
-        int state, pin;
-
-
+        Button(int n = 0);
 };
 
 #endif

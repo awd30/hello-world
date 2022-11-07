@@ -14,3 +14,4 @@ Game::Game(bool n) {
         timer = 300;
     }
 }
+
