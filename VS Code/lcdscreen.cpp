@@ -35,12 +35,12 @@ void LCDScreen::difficultyLevel() {
     delay(200);
 }
 
-void LCDScreen::difficultyLevel(string level) {
+void LCDScreen::difficultyLevel(bool level) {
     lcdDisplay();
     lcd.print("  YOU SELECTED  ");
     lcd.setCursor(0, 1);
     
-    if (level.tolower() == "hard") {
+    if (level == false) {
         lcd.print("   HARD LEVEL   ");
     } else {
         lcd.print("   EASY LEVEL   ");
@@ -49,14 +49,17 @@ void LCDScreen::difficultyLevel(string level) {
     delay(100);
 }
 
-void LCDScreen::gameOver(char score[10]) {
+void LCDScreen::gameOver(int finalScore) {
+    char score_buf[10];
+    String score = String(finalScore);
+    score.toCharArray(score_buf);
     lcdDisplay();
     lcd.print("GAME OVER!");
     delay(100);
     lcdDisplay();
     lcd.print("SCORE: ");
     lcd.setCursor(7, 0);                    
-    lcd.print(scoreString);
+    lcd.print(score_buf);
     delay(500);
 }
 

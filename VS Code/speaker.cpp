@@ -2,6 +2,7 @@
 
 Speaker::Speaker() {}
 
+// tone(pin, freq, duration)
 void Speaker::gameOver() {
   tone(6, 100, 100);
   delay(100);
@@ -9,7 +10,7 @@ void Speaker::gameOver() {
 }
 
 void correctAction() {
-  tone(6, 5000, 50); //tone(pin, freq, duration)
+  tone(6, 5000, 50);
   delay(50);
   noTone(6);
 }

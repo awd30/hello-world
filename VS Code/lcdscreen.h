@@ -1,6 +1,8 @@
 #ifndef LCDSCREEN_H
 #define LCDSCREEN_H
 
+#include <string>
+
 class LCDScreen {
     private:
         LiquidCrystal_I2C lcd(0x27,16,2);
@@ -12,9 +14,9 @@ class LCDScreen {
         void welcome();
         void start();
         void difficultyLevel();
-        void levelSelection(String);
-        void gameOver(char);
-        void press(string);
+        void levelSelection(bool);
+        void gameOver(int);
+        void press(String);
 };
 
 #endif
