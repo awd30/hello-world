@@ -1,4 +1,5 @@
 #include <LiquidCrystal_I2C.h>
+#include <lcdscreen.h>
 
 LCDScreen::LCDScreen() {
     LiquidCrystal_I2C lcd(0x27,16,2);
@@ -67,4 +68,3 @@ void LCDScreen::press(String color) {
     lcd.setCursor(6, 0);                   
     lcd.print(color_buf);
 }
-

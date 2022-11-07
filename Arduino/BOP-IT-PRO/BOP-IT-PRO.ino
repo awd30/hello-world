@@ -40,7 +40,6 @@ void setup()
   pinMode(btnGreen, INPUT);
   
   Serial.begin(9600);
-  sd_check();  
   lcd.begin(16, 2);
   lcd.backlight();
   welcome();
@@ -205,7 +204,6 @@ void keepPlayingEasy()
       }
       if (actionCompleted == 1)
       {
-        play_sound(1);
         tone(6, 5000, 50); //tone(pin, freq, duration)
         delay(50);
         noTone(6);
