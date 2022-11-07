@@ -12,6 +12,7 @@ void LCDScreen::welcome() {
     lcd.print("Welcome to");     // print message at (0, 0)
     lcd.setCursor(5, 1);         // move cursor to   (5, 1)
     lcd.print("BOP-IT PRO!");    // print message at (5, 1)
+    delay(300);
 }
 
 void LCDScreen::start() {
