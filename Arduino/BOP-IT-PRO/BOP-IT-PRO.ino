@@ -1,13 +1,5 @@
-#include <Talkie.h>
-#include <TalkieUtils.h>
-#include <Vocab_US_Large.h>
-#include <Vocab_US_Acorn.h>
-#include <Vocab_Special.h>
-#include <Vocab_US_TI99.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
-#include <SD.h>
-#include <TMRpcm.h>
 #include <SPI.h>
 LiquidCrystal_I2C lcd(0x27,16,2);
 
@@ -21,14 +13,6 @@ int blueState = 0;
 int redState = 0;
 int yellowState = 0;
 int greenState = 0;
-
-//Speaker
-TMRpcm tmrpcm;
-tmrpcm.speakerPin = 12;
-// SD card
-#define SD_ChipSelectPin 11
-// Text-to-speech
-Talkie voz;
 
 //Touch Sensor
 #define TSR 6
@@ -77,45 +61,6 @@ void welcome()
   lcd.print("BOP-IT PRO!");    // print message at (5, 1)
 }
 
-// SD card sound functions
-void sd_check()
-{
-  // check for SD card present
-  if (!SD.begin(SD_ChipSelectPin)) {
-    Serial.println("SD card failed");
-    return;
-  }
-}
-
-void play_sound(int s) {
-  // select correct file
-  char* music = "";
-  switch (s) {
-    case 0:
-      music = "game_over";
-      break;
-    case 1:
-      music = "bell_correct-answer";
-      break;
-    case 2:
-      music = "buzzer_wrong-answer";
-      break;
-    default:
-      music = "";
-  }
-
-  // play music, output in terminal if it is working
-  if (Serial.available()) { 
-    // send p over serial to start playback   
-    if (Serial.read() == 'p') {
-      tmrpcm.play(music);
-    }
-  }
-
-  // end function
-  return;
-}
-
 //Start Message
 void start()
 {
@@ -123,13 +68,6 @@ void start()
   lcd.print("Press & hold any");
   lcd.setCursor(0, 1);
   lcd.print("button to start");
-  voz.say(spt_PRESS);
-  voz.say(spt_AND);
-  voz.say(sp4_HOLD);
-  voz.say(spt_ANY);
-  voz.say(sp2_BUTTON);
-  voz.say(sp4_TO);
-  voz.say(sp4_START);
   delay(50);
 }
 
@@ -194,10 +132,6 @@ void hardGameStart()
     lcd.print("  YOU SELECTED  ");
     lcd.setCursor(0, 1);
     lcd.print("   HARD LEVEL   ");
-    voz.say(sp4_YOU);
-    voz.say(spa_INPUT);
-    voz.say(sp4_LEVEL);
-    voz.say(sp3_RED);
     delay(100);
     //keepPlayingHard();
 }
@@ -207,10 +141,6 @@ void easyGameStart()
     lcd.print("  YOU SELECTED  ");
     lcd.setCursor(0, 1);
     lcd.print("   EASY LEVEL   ");
-    voz.say(sp4_YOU);
-    voz.say(spa_INPUT);
-    voz.say(sp4_LEVEL);
-    voz.say(sp3_GREEN);
     delay(100);
     keepPlayingEasy();
 }
@@ -224,7 +154,6 @@ void gameOver()
   playing1 = 0;
   score = 0;
   
-  play_sound(0);
   tone(6, 100, 100);
   delay(100);
   noTone(6);
@@ -233,7 +162,6 @@ void gameOver()
   sprintf(scoreString,"%d",finalScore);
   lcdDisplay();
   lcd.print("GAME OVER!");
-  voz.say(spt_NICE_TRY);
   delay(100);
   lcdDisplay();
   lcd.print("SCORE: ");
@@ -255,8 +183,6 @@ void keepPlayingEasy()
     {
       lcdDisplay();
       lcd.print("PRESS RED");
-      voz.say(sp2_PRESS);
-      voz.say(sp3_RED);
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
       //Action 1 = Press Red Button  
@@ -294,9 +220,7 @@ void keepPlayingEasy()
     else if (action == 2)
     {
       lcdDisplay();
-      lcd.print("PRESS GREEN");
-      voz.say(sp2_PRESS);
-      voz.say(sp3_GREEN);      
+      lcd.print("PRESS GREEN");    
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
       //Action 1 = Press Red Button  
@@ -319,7 +243,6 @@ void keepPlayingEasy()
       }
       if (actionCompleted == 1)
       {
-        play_sound(1);
         tone(6, 5000, 50); //tone(pin, freq, duration)
         delay(50);
         noTone(6);
@@ -335,8 +258,6 @@ void keepPlayingEasy()
     {
       lcdDisplay();
       lcd.print("PRESS BLUE");
-      voz.say(sp2_PRESS);
-      voz.say(spt_BLUE);
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
       //Action 3 = Press BLUE Button  
@@ -359,7 +280,6 @@ void keepPlayingEasy()
       }
       if (actionCompleted == 1)
       {
-        play_sound(1);
         tone(6, 5000, 50); //tone(pin, freq, duration)
         delay(50);
         noTone(6);
@@ -397,7 +317,6 @@ void keepPlayingEasy()
       }
       if (actionCompleted == 1)
       {
-        play_sound(1);
         tone(6, 5000, 50); //tone(pin, freq, duration)
         delay(50);
         noTone(6);

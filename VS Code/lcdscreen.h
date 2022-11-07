@@ -10,7 +10,11 @@ class LCDScreen {
         ~LCDScreen();
 
         void welcome();
-        
+        void start();
+        void difficultyLevel();
+        void levelSelection(String);
+        void gameOver(char);
+        void press(string);
 };
 
 #endif
