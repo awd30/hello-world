@@ -54,7 +54,7 @@ void BopItPro::preGame() {
 
 void BopItPro::newGame(bool level) {
     Game game = Game(level);
-    game.start();
+    game.start(*this);
 
     // start program over
     preGame();
@@ -68,4 +68,11 @@ void BopItPro::setHighScore(int score) {
     if (score > highScore) {
         highScore = score;
     }
+}
+
+Button BopItPro::getButton(int n) {
+    if (n == 2) { return blue; }
+    else if (n == 3) { return red; }
+    else if (n == 4) { return yellow; }
+    else if (n == 5) { return green; }
 }

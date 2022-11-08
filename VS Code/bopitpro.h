@@ -24,6 +24,7 @@ class BopItPro {
         void setHighScore(int);
 
         // Class functions
+        Button getButton(int);
         void boot();
         void preGame();
         void newGame(bool);

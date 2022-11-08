@@ -6,6 +6,9 @@
 class Button : public PlayerInput {
     public:
         Button(int n = 0);
+        
+        String color;
+        String getColor();
 };
 
 #endif

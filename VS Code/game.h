@@ -8,13 +8,15 @@ class Game {
         Game(bool);
 
         bool level;
-        int timer, currentScore, finalScore;
+        const String colors[4] = { "RED", "GREEN", "BLUE", "YELLOW" };
+        int timer, currentScore, finalScore, playing;
         unsigned long timeOfPrompt, timeElapsed;
         long action;
 
-        void start();
+        void start(BopItPro);
+        void turn(long, BopItPro);
+        void correctAction(BopItPro);
         void gameOver(BopItPro);
-        void correctTurn();
 };
 
 #endif
