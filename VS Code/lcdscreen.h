@@ -1,6 +1,7 @@
 #ifndef LCDSCREEN_H
 #define LCDSCREEN_H
 
+#include <Arduino.h>
 #include <string>
 
 class LCDScreen {

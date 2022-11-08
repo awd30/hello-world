@@ -2,6 +2,7 @@
 #define GAME_H
 
 #define SEQUENCE_SIZE 100
+#include <Arduino.h>
 
 class Game {
     public:

@@ -1,6 +1,7 @@
 #ifndef BOPITPRO_H
 #define BOPITPRO_H
 
+#include <Arduino.h>
 #include <button.h>
 #include <touchsensor.h>
 #include <slide.h>
