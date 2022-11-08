@@ -8,7 +8,6 @@ class PlayerInput {
         PlayerInput(int);
 
         int state, pin;
-
         int getState();
         int getPin();
 };

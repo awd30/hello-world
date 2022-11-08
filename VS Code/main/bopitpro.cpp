@@ -5,7 +5,7 @@ BopItPro::BopItPro() {
     // Create instance of LCD screen
     lcd = LCDScreen();
 
-    // Create incstance of speaker
+    // Create instance of speaker
     speaker = Speaker();
     
     // Create instances of all 4 buttons

@@ -7,7 +7,8 @@
 class Slide : public PlayerInput {
     public:
         Slide(int n = 0);
-        
+
+        int getState();      
 };
 
 #endif
