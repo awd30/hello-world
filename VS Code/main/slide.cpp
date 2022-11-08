@@ -1,3 +1,3 @@
-#include <slide.h>
+#include "slide.h"
 
 Slide::Slide(int n) : PlayerInput(n) {}

@@ -2,6 +2,7 @@
 #define TOUCHSENSOR_H
 
 #include <Arduino.h>
+#include "playerinput.h"
 
 class TouchSensor : public PlayerInput {
     public:

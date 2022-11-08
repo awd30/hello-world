@@ -3,6 +3,7 @@
 
 #define SEQUENCE_SIZE 100
 #include <Arduino.h>
+#include "bopitpro.h"
 
 class Game {
     public:

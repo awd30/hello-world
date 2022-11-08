@@ -1,8 +1,6 @@
-#include <LiquidCrystal_I2C.h>
-#include <lcdscreen.h>
+#include "lcdscreen.h"
 
 LCDScreen::LCDScreen() {
-    LiquidCrystal_I2C lcd(0x27,16,2);
     lcd.begin(16, 2);
     lcd.backlight();
 }
@@ -53,7 +51,7 @@ void LCDScreen::levelSelection(bool level) {
 void LCDScreen::gameOver(int finalScore) {
     char score_buf[10];
     String score = String(finalScore);
-    score.toCharArray(score_buf);
+    score.toCharArray(*score_buf, 10);
     lcdDisplay();
     lcd.print("GAME OVER!");
     delay(100);
@@ -66,9 +64,15 @@ void LCDScreen::gameOver(int finalScore) {
 
 void LCDScreen::press(String color) {
     char color_buf [10];
-    color.toCharArray(color_buf);
+    color.toCharArray(*color_buf, 10);
     lcdDisplay();
     lcd.print("PRESS ");
     lcd.setCursor(6, 0);                   
     lcd.print(color_buf);
+}
+
+void LCDScreen::lcdDisplay()
+{
+  lcd.clear();
+  lcd.setCursor(0, 0);
 }

@@ -1,7 +1,5 @@
-#include <game.h>
-#include <bopitpro.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "game.h"
+#include "bopitpro.h"
 
 // Create new Game instance with bop-it-pro specifics
 Game::Game(bool n) {

@@ -2,13 +2,11 @@
 #define LCDSCREEN_H
 
 #include <Arduino.h>
-#include <string>
+#include <LiquidCrystal_I2C.h>
 
 class LCDScreen {
-    private:
-        LiquidCrystal_I2C lcd(0x27,16,2);
-
     public:
+        LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27,16,2);
         LCDScreen();
 
         void welcome();
@@ -17,6 +15,7 @@ class LCDScreen {
         void levelSelection(bool);
         void gameOver(int);
         void press(String);
+        void lcdDisplay();
 };
 
 #endif

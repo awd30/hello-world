@@ -2,7 +2,7 @@
 #define BUTTON_H
 
 #include <Arduino.h>
-#include <playerinput.h>
+#include "playerinput.h"
 
 class Button : public PlayerInput {
     public:

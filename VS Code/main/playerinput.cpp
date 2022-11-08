@@ -1,4 +1,4 @@
-#include <playerinput.h>
+#include "playerinput.h"
 
 PlayerInput::PlayerInput(int n) {
     state = 0;

@@ -1,4 +1,4 @@
-#include <button.h>
+#include "button.h"
 
 Button::Button(int n) : PlayerInput(n) {
     if (n == 2) { color = "BLUE"; }

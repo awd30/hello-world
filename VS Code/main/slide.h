@@ -2,7 +2,7 @@
 #define SLIDE_H
 
 #include <Arduino.h>
-#include <playerinput.h>
+#include "playerinput.h"
 
 class Slide : public PlayerInput {
     public:

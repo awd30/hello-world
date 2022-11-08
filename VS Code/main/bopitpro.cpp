@@ -1,5 +1,5 @@
-#include <bopitpro.h>
-#include <game.h>
+#include "bopitpro.h"
+#include "game.h"
 
 BopItPro::BopItPro() {
     // Create instance of LCD screen
