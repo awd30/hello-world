@@ -9,6 +9,8 @@ LiquidCrystal_I2C lcd(0x27,16,2);
 #define btnYellow 4
 #define btnGreen 5
 
+#define slideP A1
+
 int blueState = 0;
 int redState = 0;
 int yellowState = 0;
@@ -38,6 +40,7 @@ void setup()
   pinMode(btnRed, INPUT);
   pinMode(btnYellow, INPUT);
   pinMode(btnGreen, INPUT);
+  pinMode(slideP, INPUT);
   
   Serial.begin(9600);
   lcd.begin(16, 2);
@@ -48,7 +51,7 @@ void setup()
 
 void loop() 
 {
-  pressAnyButton();
+  start();
 }
 
 //Welcome message
@@ -63,11 +66,40 @@ void welcome()
 //Start Message
 void start()
 {
+  // lcd.setCursor(0, 0);
+  // lcd.print("Press & hold any");
+  // lcd.setCursor(0, 1);
+  // lcd.print("button to start");
+  // delay(50);
+
+  lcd.clear();
+  int state = analogRead(slideP);
+  bool stop = 0;
+  int diff, currentState;
   lcd.setCursor(0, 0);
-  lcd.print("Press & hold any");
-  lcd.setCursor(0, 1);
-  lcd.print("button to start");
-  delay(50);
+  lcd.print("Slide: ");
+  lcd.print(state);
+
+  while (stop == 0) {
+    lcd.setCursor(0, 0);
+    lcd.print("Slide: ");
+    int currentState = analogRead(slideP);
+    lcd.print(currentState);
+
+    int diff = abs(currentState - state);
+    lcd.setCursor(0, 1);
+    lcd.print("diff: ");
+    lcd.print(diff);  
+    
+    if (diff >= 500) {
+      stop = 1;
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("complete");
+      delay(300);
+    }
+  }
+
 }
 
 // Update button state global variables with current values

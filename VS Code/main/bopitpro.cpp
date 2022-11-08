@@ -6,7 +6,7 @@ BopItPro::BopItPro() {
     lcd = LCDScreen();
 
     // Create instance of speaker
-    speaker = Speaker();
+    speaker = Speaker(6);
     
     // Create instances of all 4 buttons
     blue = Button(2);
@@ -15,12 +15,12 @@ BopItPro::BopItPro() {
     green = Button(5);
 
     // Create instances of all 3 touch sensors
-    right = TouchSensor(6);
-    left = TouchSensor(7);
-    other = TouchSensor(9);
+    right = TouchSensor(7);
+    left = TouchSensor(9);
+    other = TouchSensor(10);
 
     // Create instance of slide petentiometer
-    slideP = Slide(11);
+    slideP = SlidePot(11); // connected to pin A1
 }
 
 void BopItPro::boot() {
@@ -55,6 +55,7 @@ void BopItPro::preGame() {
 void BopItPro::newGame(bool level) {
     Game game = Game(level);
     game.start(*this);
+    setHighScore(game.finalScore);
 
     // start program over
     preGame();
