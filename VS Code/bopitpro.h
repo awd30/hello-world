@@ -18,13 +18,15 @@ class BopItPro {
         TouchSensor right, left, other;
         Slide slideP;
 
-        // Store final game scores
+        // Store high score
+        int highScore;
+        int getHighScore();
+        void setHighScore(int);
 
+        // Class functions
         void boot();
         void preGame();
         void newGame(bool);
-        
-        void readBtnStates();
 };
 
 #endif

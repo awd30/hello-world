@@ -54,4 +54,18 @@ void BopItPro::preGame() {
 
 void BopItPro::newGame(bool level) {
     Game game = Game(level);
+    game.start();
+
+    // start program over
+    preGame();
+}
+
+int BopItPro::getHighScore() {
+    return highScore;
+}
+
+void BopItPro::setHighScore(int score) {
+    if (score > highScore) {
+        highScore = score;
+    }
 }
