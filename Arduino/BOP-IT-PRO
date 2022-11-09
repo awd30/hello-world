@@ -1,41 +1,42 @@
-
-//LCD config
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
-#include <pitches.h>
-LiquidCrystal_I2C lcd(0x27,16,2); 
+LiquidCrystal_I2C lcd(0x27,16,2);
 
-//Buttons define
-const int btnBlue=2; //Blue
-const int btnRed=3; //Red
-const int btnYellow=4; //Yellow
-const int btnGreen=5; //Green
+// Buttons definitions
+const int btnBlue = 2;
+const int btnRed = 3;
+const int btnYellow = 4;
+const int btnGreen = 5;
 
-int blueState = 0;
-int redState = 0;
-int yellowState = 0;
-int greenState = 0;
+// Initial states of buttons
+int blueState = 0, redState = 0, yellowState = 0, greenState = 0;
 
-//Speaker
-
+//POT
+int potPin = A1;
+int potValue = 0;
+int currPotValue = 0;
+int diff = 0;
 
 //Touch Sensor
-int TS1=2;
-int TS2=17;
-int TS3=18;
-int TS4=19;
+const int TSR = 10;
+const int TSL = 7;
+const int TSU = 9;
+
+// Initial states of touch sensors
+int rightTouch, leftTouch, upTouch;
 
 //Timer
 unsigned long hardMode = 300;
-unsigned long easyMode = 700;
-unsigned long timeOfPrompt;
-unsigned long timeElapsed;
+unsigned long easyMode = 400;
+unsigned long timeOfPrompt, timeElapsed;
+int timer;
 long action;
-// variable to control game loop
-int playing = 0;
+
+// Variables to control game loop, initialized to 0
+int playing1 = 0;
 int actionCompleted = 0;
 int score = 0;
-int finalScore;
+int finalScore = 0;
   
 //setup
 void setup() 
@@ -44,6 +45,11 @@ void setup()
   pinMode(btnRed, INPUT);
   pinMode(btnYellow, INPUT);
   pinMode(btnGreen, INPUT);
+  pinMode(TSR, INPUT);
+  pinMode(TSL, INPUT);
+  pinMode(TSU, INPUT); //Uptouch
+  pinMode(potPin, INPUT); //pot
+  
   Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.backlight();
@@ -59,11 +65,12 @@ void loop()
 //Welcome message
 void welcome()
 {
-  lcd.setCursor(0, 0);         // move cursor to   (0, 0)
-  lcd.print("Welcome to");        // print message at (0, 0)
-  lcd.setCursor(5, 1);         // move cursor to   (5, 1)
-  lcd.print("BOP-IT PRO!"); // print message at (5, 1)
+  lcd.setCursor(0, 0);         // move cursor to (0, 0)
+  lcd.print("Welcome to");     // print message at (0, 0)
+  lcd.setCursor(5, 1);         // move cursor to (5, 1)
+  lcd.print("BOP-IT PRO!");    // print message at (5, 1)
 }
+
 //Start Message
 void start()
 {
@@ -73,55 +80,84 @@ void start()
   lcd.print("button to start");
   delay(50);
 }
-//Button Function
-void pressAnyButton()
+
+// Update button state global variables with current values
+void readBtnStates()
 {
   blueState = digitalRead(btnBlue);
   redState = digitalRead(btnRed);
   yellowState = digitalRead(btnYellow);
   greenState = digitalRead(btnGreen);
+  currPotValue = analogRead(potPin);  
+}
+void rightSound()
+{
+  tone(6, 6000, 20); //tone(pin, freq, duration)
+  delay(50);
+  noTone(6);
+}
+void gameOverSound()
+{
+  tone(6, 4000, 100);
+  delay(50);
+  noTone(6);
+
+  tone(6, 2000, 100);
+  delay(50);
+  noTone(6);
+}
+
+int leftTouch2, rightTouch2, upTouch2;
+void getTouch2States() {
+  leftTouch2 = digitalRead(TSL);
+  rightTouch2 = digitalRead(TSR);
+  upTouch2 = digitalRead(TSU);
+}
+
+//Button Function
+void pressAnyButton()
+{
+  start();
+  readBtnStates();
       //blue                    red                   yellow            green
-  if(blueState == HIGH || redState == HIGH || yellowState == HIGH || greenState == HIGH)
+  if((redState == HIGH) || (blueState == HIGH) || (yellowState == HIGH) || (greenState == HIGH))
   {
     gameMode(); //Displays difficulty level
-    if(redState == HIGH)
-    {
-      hardGameStart();
-      delay(200);      
+    bool level = 0;
+    while (level != 1) {
+      readBtnStates();
+      if(getBtnState(btnRed))//(redState == HIGH)
+      {
+        level = 1;
+        hardGameStart();
+        delay(200);      
+      }
+      else if(getBtnState(btnGreen))
+      {
+        level = 1;
+        easyGameStart();
+        delay(200);   
+      }
     }
-    else if(greenState == HIGH)
-    {
-      easyGameStart();
-      delay(200);   
-    }
-  }   
-  else
-  {
-    start();
-    delay(50);
-    lcd.noDisplay();
-    delay(50);
-    lcd.display();
   }
 }
 
 void gameMode()
 {
-  redState = digitalRead(btnRed);
-  greenState = digitalRead(btnGreen);
-    lcdDisplay();
-    lcd.print("DIFFICULTY ");
-    lcd.setCursor(11, 1);
-    lcd.print("LEVEL");
-    delay(100);
-    lcdDisplay();
-    lcd.print("GREEN FOR EASY");
-    lcd.setCursor(0, 1);
-    lcd.print("RED FOR HARD");
-    delay(200);
+  lcdDisplay();
+  lcd.print("DIFFICULTY ");
+  lcd.setCursor(11, 1);
+  lcd.print("LEVEL");
+  delay(100);
+
+  lcdDisplay();
+  lcd.print("GREEN FOR EASY");
+  lcd.setCursor(0, 1);
+  lcd.print("RED FOR HARD");
+  delay(200);
 }    
 
-//Game mode hard, timer = 3 secs
+// Game mode hard, timer = 3 secs
 void hardGameStart()
 {
     lcdDisplay();
@@ -129,7 +165,7 @@ void hardGameStart()
     lcd.setCursor(0, 1);
     lcd.print("   HARD LEVEL   ");
     delay(100);
-    //keepPlayingHard();
+    keepPlaying(hardMode);
 }
 void easyGameStart()
 {
@@ -138,275 +174,370 @@ void easyGameStart()
     lcd.setCursor(0, 1);
     lcd.print("   EASY LEVEL   ");
     delay(100);
-    keepPlayingEasy();
+    keepPlaying(easyMode);
 }
 void lcdDisplay()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
 }
+
+int getBtnState(int pin) 
+{
+  switch(pin) {
+    case 2:
+      return blueState;
+      break;
+    case 3:
+      return redState;
+      break;
+    case 4:
+      return yellowState;
+      break;
+    case 5:
+      return greenState;
+      break;
+    default:
+      return 0;
+      break;
+  }
+}
+
+void recalcTime()
+{
+  //recalculate timeElapsed
+  timeElapsed = millis() - timeOfPrompt;
+  int time = (timeElapsed - timeOfPrompt)/1000;
+  lcd.setCursor(0, 1);
+  char string[1];
+  sprintf(string,"%d",time);
+  lcd.print(time);
+}
+
 void gameOver()
 {
-  tone(6, 100, 100);
+  playing1 = 0;
+  gameOverSound(); 
+  
+  lcdDisplay();
+  lcd.print("GAME OVER!");
   delay(100);
-  noTone(6);
+
   finalScore = score;
   char scoreString[10];
   sprintf(scoreString,"%d",finalScore);
   lcdDisplay();
-  lcd.print("GAME OVER!");
-  delay(100);
-  lcdDisplay();
   lcd.print("SCORE: ");
   lcd.setCursor(7, 0);                    
   lcd.print(scoreString);
-  delay(500);
+  delay(300);
+  
+  score = 0;
   start();
 }
-void keepPlayingEasy()
+
+int wrongBtn = 0;
+
+void keepPlaying(unsigned long t)
 {
-  int playing = 1;
-  //while loop to keep running game until user has failed and "playing" is set to zero
-  while (playing != 0) 
+  playing1 = 1;
+  //while loop to keep running game until user has failed and "playing1" is set to zero
+  while (playing1 != 0) 
   {   
     //pick an action to assign the user via a random number generator – upper bound is exclusive
-    action = random(1, 4);
+    action = random(1, 9);
     actionCompleted = 0;
+    //upTouch, leftTouch, rightTouch = 0;
+    diff = 0;
+
+    lcdDisplay();
+    // Action 1 --> press red button
     if (action == 1)
     {
-      lcdDisplay();
       lcd.print("PRESS RED");
-      timeOfPrompt = millis();
+      timeOfPrompt = millis(); //time displayed
       timeElapsed = millis() - timeOfPrompt;
-      //Action 1 = Press Red Button  
-      while (timeElapsed < easyMode && actionCompleted == 0)
+
+      while (timeElapsed < t && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
-        //read switch for comparing to check if action was completed
-        //if the switch state changed, then the user completed action
+        readBtnStates();
         if (redState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
+          rightSound();
         }
         else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
-          gameOver();
-          playing = 0;
-          score = 0;
+          wrongBtn = 1;
+          break;
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
       }
-      if (actionCompleted == 1)
-      {
-        tone(6, 5000, 50); //tone(pin, freq, duration)
-        delay(50);
-        noTone(6);
-      }
-      else if(timeElapsed > 700 && actionCompleted == 0)
+
+      if (wrongBtn == 1)
       {
         gameOver();
-        playing = 0;
-        score = 0;
       }
-
+      else if(actionCompleted == 0)
+      {
+        gameOver();
+      }
     }
-    //Action 2
+    
+    // Action 2 --> press green button
     else if (action == 2)
     {
-      lcdDisplay();
-      lcd.print("PRESS GREEN");
+      lcd.print("PRESS GREEN"); 
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
-      //Action 1 = Press Red Button  
-      while (timeElapsed < easyMode && actionCompleted == 0)
+  
+      while (timeElapsed < t && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
-        //read switch for comparing to check if action was completed
-        //if the switch state changed, then the user completed action
+        readBtnStates();
         if (greenState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
+          delay(5);
+          rightSound();
         }
         else if(redState == HIGH || blueState == HIGH || yellowState == HIGH)
         {
-          gameOver();
-          playing = 0;
-          score = 0;
+          wrongBtn = 1;
+          break;
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
       }
-      if (actionCompleted == 1)
-      {
-        tone(6, 5000, 50); //tone(pin, freq, duration)
-        delay(50);
-        noTone(6);
-      }
-      else if(timeElapsed > 700 && actionCompleted == 0)
+
+      if (wrongBtn == 1)
       {
         gameOver();
-        playing = 0;
-        score = 0;
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
       }
     }
 
-    //Action 3
+    // Action 3 --> press blue button
     else if (action == 3)
     {
-      lcdDisplay();
       lcd.print("PRESS BLUE");
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
-      //Action 3 = Press BLUE Button  
-      while (timeElapsed < easyMode && actionCompleted == 0)
+ 
+      while (timeElapsed < t && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
-        //read switch for comparing to check if action was completed
-        //if the switch state changed, then the user completed action
+        readBtnStates();
         if (blueState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
+          rightSound();
         }
         else if(redState == HIGH || greenState == HIGH || yellowState == HIGH)
         {
-          gameOver();
-          playing = 0;
-          score = 0;
-         
+          wrongBtn = 1;
+          break;
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
       }
-      if (actionCompleted == 1)
-      {
-        tone(6, 5000, 50); //tone(pin, freq, duration)
-        delay(50);
-        noTone(6);
-      }
-      else if(timeElapsed > 700 && actionCompleted == 0)
+
+      if (wrongBtn == 1)
       {
         gameOver();
-        playing = 0;
-        score = 0;
-       
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
       }
     }
 
-    //Action 4
+    // Action 4 --> press yellow button
     else if (action == 4)
     {
-      lcdDisplay();
       lcd.print("PRESS YELLOW");
       timeOfPrompt = millis();
       timeElapsed = millis() - timeOfPrompt;
-      //Action 3 = Press BLUE Button  
-      while (timeElapsed < easyMode && actionCompleted == 0)
+ 
+      while (timeElapsed < t && actionCompleted == 0)
       {
-        redState = digitalRead(btnRed);
-        blueState = digitalRead(btnBlue);
-        yellowState = digitalRead(btnYellow);
-        greenState = digitalRead(btnGreen);
-        //read switch for comparing to check if action was completed
-        //if the switch state changed, then the user completed action
+        readBtnStates();
         if (yellowState == HIGH)
         {
           actionCompleted = 1;
-          score = score +1;
+          score = score + 1;
+          rightSound();
         }
         else if(redState == HIGH || greenState == HIGH || blueState == HIGH)
         {
-          gameOver();
-          playing = 0;
-          score = 0;
-          
+          wrongBtn = 1;
+          break;
         }
         //recalculate timeElapsed
         timeElapsed = millis() - timeOfPrompt;
-      }
-      if (actionCompleted == 1)
-      {
-        tone(6, 5000, 50); //tone(pin, freq, duration)
-        delay(50);
-        noTone(6);
-      }
-      else if(timeElapsed > 700 && actionCompleted == 0)
-      {
-        gameOver();
-        playing = 0;
-        score = 0;
-       
-      }
-    }
-  }
-}//end this function
-/*
-void keepPlayingHard()
-{
-  int playing = 1;
-  //while loop to keep running game until user has failed and "playing" is set to zero
-  while (playing != 0) 
-  {   
-    //pick an action to assign the user via a random number generator – upper bound is exclusive
-    action = random(1, 4);
-    actionCompleted = 0;
-    if (action == 1)
-    {
-      lcdDisplay();
-      lcd.print("PRESS RED");
-      timeOfPrompt = millis();
-      timeElapsed = millis() - timeOfPrompt;
-      //Action 1 = Press Red Button  
-      while (timeElapsed < hardMode && actionCompleted == 0)
-      {
-        //read switch for comparing to check if action was completed
-        redState = digitalRead(btnRed);
-        int blueState = digitalRead(btnBlue);
-        int yellowState = digitalRead(btnYellow);
-        int greenState = digitalRead(btnGreen);
-        //if the switch state changed, then the user completed action
-        if (redState == HIGH)
-        {
-          actionCompleted = 1;
-          score = score +1;
-        }
-        else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH)
-        {
-          gameOver();
-          playing = 0;
-          score = 0;
-          loop();
-        }
-        //recalculate timeElapsed
-        timeElapsed = millis() - timeOfPrompt;
-      }
-      if (actionCompleted == 1)
-      {
-        tone(6, 5000, 50); //tone(pin, freq, duration)
-        delay(50);
-        noTone(6);
-      }
-      else if(timeOfPrompt == 300 && actionCompleted == 0)
-      {
-        gameOver();
-        playing = 0;
-        score = 0;
-        loop();
       }
 
+      if (wrongBtn == 1)
+      {
+        gameOver();
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
+      }
+    }
+
+    // Action 5 --> touch right sensor    
+    else if (action == 5)
+    {
+      lcd.print("TOUCH RIGHT ");
+      timeOfPrompt = millis();
+      timeElapsed = millis() - timeOfPrompt;
+
+      rightTouch = digitalRead(TSR);
+      while (timeElapsed < t && actionCompleted == 0)
+      {
+        readBtnStates();
+        getTouch2States();
+        if (rightTouch != rightTouch2)
+        {
+          actionCompleted = 1;
+          score = score + 1;
+          rightSound();
+        }
+        else if(greenState == HIGH || blueState == HIGH || yellowState == HIGH || redState == HIGH)
+        {
+          wrongBtn = 1;
+          break;
+        }
+        //recalculate timeElapsed
+        timeElapsed = millis() - timeOfPrompt;
+      }
+
+      if (wrongBtn == 1)
+      {
+        gameOver();
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
+      }
+    }
+
+    // Action 6 --> touch left sensor
+    else if (action == 6)
+    {
+      lcd.print("TOUCH LEFT ");
+      timeOfPrompt = millis();
+      timeElapsed = millis() - timeOfPrompt;
+
+      leftTouch = digitalRead(TSL);
+      while (actionCompleted == 0)
+      {
+        readBtnStates();
+        getTouch2States();
+        if (leftTouch != leftTouch2)
+        {
+          actionCompleted = 1;
+          score = score + 1;
+          rightSound();
+        }
+        else if(((greenState == HIGH) || (blueState == HIGH) || (yellowState == HIGH) || (redState == HIGH)))
+        {
+          wrongBtn = 1;
+          break;
+        }
+        //recalculate timeElapsed
+        timeElapsed = millis() - timeOfPrompt;
+      }
+      if (wrongBtn == 1)
+      {
+        gameOver();
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
+      }
+    }
+
+    // Action 7 --> touch top sensor
+    else if (action == 7)
+    {
+      lcd.print("TOUCH UP ");
+      timeOfPrompt = millis();
+      timeElapsed = millis() - timeOfPrompt;
+
+      upTouch = digitalRead(TSU);
+      while (timeElapsed < t && actionCompleted == 0)
+      {
+        readBtnStates();
+        getTouch2States();
+        if (upTouch != upTouch2)
+        {
+          actionCompleted = 1;
+          score = score + 1;
+          rightSound();
+        }
+        else if(((greenState == HIGH) || (blueState == HIGH) || (yellowState == HIGH) || (redState == HIGH)))
+        {
+          wrongBtn = 1;
+          break;
+        }
+        //recalculate timeElapsed
+        timeElapsed = millis() - timeOfPrompt;
+      }
+      if (wrongBtn == 1)
+      {
+        gameOver();
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
+      }
+    }
+
+    // Action 8 --> slide potentiometer to the side
+    else if (action == 8)
+    {
+      lcd.print("SLIDE");
+      timeOfPrompt = millis();
+      timeElapsed = millis() - timeOfPrompt;
+      potValue = analogRead(potPin);
+
+      while (timeElapsed < t && actionCompleted == 0)
+      {
+        readBtnStates();
+        diff = abs(potValue - currPotValue);
+        diff = 600;
+        delay(100);
+        if (diff >= 500)
+        {
+          actionCompleted = 1;
+          score = score + 1;
+          rightSound();
+        }
+        else if(((greenState == HIGH) || (blueState == HIGH) || (yellowState == HIGH) || (redState == HIGH)))
+        {
+          wrongBtn = 1;
+          break;
+        }
+        //recalculate timeElapsed
+        timeElapsed = millis() - timeOfPrompt;
+      }
+      if (wrongBtn == 1)
+      {
+        gameOver();
+      }
+      else if(actionCompleted == 0)
+      {
+        gameOver();
+      }
     }
   }
+  //gameOver();
 }//end this function
-*/
